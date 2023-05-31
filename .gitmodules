@@ -1,0 +1,3 @@
+[submodule "okvis"]
+	path = okvis
+	url = git@github.com:joshi-bharat/okvis.git
