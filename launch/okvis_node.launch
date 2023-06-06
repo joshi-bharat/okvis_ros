@@ -5,6 +5,7 @@
     <remap from="/camera0" to="/slave1/image_raw" />
     <remap from="/camera1" to="/slave2/image_raw" />
     <remap from="/imu" to="/imu/data_raw" />
+    <remap from="/mag" to="/imu/mag" />
   </node>
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find okvis_ros)/config/rviz_mesh.rviz"/>
