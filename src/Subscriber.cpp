@@ -160,8 +160,7 @@ void Subscriber::imuCallback(const sensor_msgs::ImuConstPtr& msg) {
 void Subscriber::magneticCallback(const sensor_msgs::MagneticFieldConstPtr& msg) {
   vioInterface_->addMagnetometerMeasurement(
       okvis::Time(msg->header.stamp.sec, msg->header.stamp.nsec),
-      Eigen::Vector3d(msg->magnetic_field.x, msg->magnetic_field.y, msg->magnetic_field.z),
-      vioParameters_.magnetometer.stdev);
+      Eigen::Vector3d(msg->magnetic_field.x, msg->magnetic_field.y, msg->magnetic_field.z));
 }
 
 #ifdef HAVE_LIBVISENSOR

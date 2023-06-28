@@ -57,7 +57,7 @@ include_directories(
 
 # compile the ROS dependent stuff into a library
 add_definitions(-fPIC -march=native -Wextra -Winit-self -Woverloaded-virtual
-                -Wnon-virtual-dtor -Wsign-promo -Wno-long-long -std=c++14)
+                -Wnon-virtual-dtor -Wsign-promo -Wno-long-long -std=c++17)
 add_library(${PROJECT_NAME} STATIC src/Subscriber.cpp
                                src/Publisher.cpp
                                src/RosParametersReader.cpp
