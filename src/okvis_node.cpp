@@ -4,7 +4,7 @@
  *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright notice,
@@ -38,28 +38,27 @@
  * @author Andreas Forster
  */
 
+#include <stdlib.h>
+
+#include <fstream>
 #include <functional>
 #include <iostream>
-#include <fstream>
-#include <stdlib.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 #include <ros/ros.h>
 #pragma GCC diagnostic pop
-#include <image_transport/image_transport.h>
-#include "sensor_msgs/Imu.h"
-
 #include <glog/logging.h>
+#include <image_transport/image_transport.h>
 
-#include <okvis/Subscriber.hpp>
 #include <okvis/Publisher.hpp>
 #include <okvis/RosParametersReader.hpp>
+#include <okvis/Subscriber.hpp>
 #include <okvis/ThreadedKFVio.hpp>
 
-int main(int argc, char **argv)
-{
+#include "sensor_msgs/Imu.h"
 
+int main(int argc, char** argv) {
   ros::init(argc, argv, "okvis_node");
 
   // set up the node
@@ -67,17 +66,18 @@ int main(int argc, char **argv)
 
   // initialise logging
   google::InitGoogleLogging(argv[0]);
-  FLAGS_stderrthreshold = 0; // INFO: 0, WARNING: 1, ERROR: 2, FATAL: 3
+  FLAGS_stderrthreshold = 0;  // INFO: 0, WARNING: 1, ERROR: 2, FATAL: 3
   FLAGS_colorlogtostderr = 1;
+  // FLAGS_v = 1;
 
   // publisher
   okvis::Publisher publisher(nh);
 
   // read configuration file
   std::string configFilename;
-  if(!nh.getParam("config_filename",configFilename)) {
-     LOG(ERROR) << "Please specify filename of configuration!";
-     return 1;
+  if (!nh.getParam("config_filename", configFilename)) {
+    LOG(ERROR) << "Please specify filename of configuration!";
+    return 1;
   }
   okvis::RosParametersReader vio_parameters_reader(configFilename);
   okvis::VioParameters parameters;
@@ -85,17 +85,27 @@ int main(int argc, char **argv)
 
   okvis::ThreadedKFVio okvis_estimator(parameters);
 
-  okvis_estimator.setFullStateCallback(std::bind(&okvis::Publisher::publishFullStateAsCallback,&publisher,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3,std::placeholders::_4));
-  okvis_estimator.setLandmarksCallback(std::bind(&okvis::Publisher::publishLandmarksAsCallback,&publisher,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3));
-  okvis_estimator.setStateCallback(std::bind(&okvis::Publisher::publishStateAsCallback,&publisher,std::placeholders::_1,std::placeholders::_2));
-  publisher.setParameters(parameters); // pass the specified publishing stuff
+  okvis_estimator.setFullStateCallback(std::bind(&okvis::Publisher::publishFullStateAsCallback,
+                                                 &publisher,
+                                                 std::placeholders::_1,
+                                                 std::placeholders::_2,
+                                                 std::placeholders::_3,
+                                                 std::placeholders::_4));
+  okvis_estimator.setLandmarksCallback(std::bind(&okvis::Publisher::publishLandmarksAsCallback,
+                                                 &publisher,
+                                                 std::placeholders::_1,
+                                                 std::placeholders::_2,
+                                                 std::placeholders::_3));
+  okvis_estimator.setStateCallback(
+      std::bind(&okvis::Publisher::publishStateAsCallback, &publisher, std::placeholders::_1, std::placeholders::_2));
+  publisher.setParameters(parameters);  // pass the specified publishing stuff
 
   // subscriber
   okvis::Subscriber subscriber(nh, &okvis_estimator, vio_parameters_reader);
 
   while (ros::ok()) {
     ros::spinOnce();
-	okvis_estimator.display();
+    okvis_estimator.display();
   }
 
   return 0;
